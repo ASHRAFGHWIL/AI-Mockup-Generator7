@@ -67,7 +67,7 @@ const getTextStyleAttributes = (textStyle: TextStyle, color: string): string => 
  * This is suitable for vector use cases like laser engraving.
  */
 export const generateDesignSvg = async (options: DesignOptions): Promise<string> => {
-  const { logo, text, textColor, font, style, productType, textStyle, gradientStartColor, gradientEndColor } = options;
+  const { logo, text, font, style, productType, textStyle, textColor, gradientStartColor, gradientEndColor } = options;
   if (!logo) {
     throw new Error("Logo is required to generate an SVG.");
   }
@@ -536,7 +536,7 @@ export const generateDesignPng = async (options: DesignOptions, resolution: numb
  * This is useful for downloading text as a separate asset.
  */
 export const generateTextOnlySvg = async (options: DesignOptions): Promise<string> => {
-  const { logo, text, textColor, font, style, productType, textStyle, gradientStartColor, gradientEndColor } = options;
+  const { logo, text, font, style, productType, textStyle, textColor, gradientStartColor, gradientEndColor } = options;
   if (!logo) {
     throw new Error("Logo is required to calculate text layout for the SVG.");
   }

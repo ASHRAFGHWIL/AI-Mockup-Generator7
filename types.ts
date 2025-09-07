@@ -2,7 +2,7 @@
 import React from 'react';
 
 export type DesignStyle = 'classic' | 'split' | 'sketch' | 'slasher' | 'vintage_stamp' | 'retro_wave' | 'minimalist_line' | 'grunge_overlay' | 'full_wrap' | 'full_front' | 'cyberpunk_glitch' | 'stacked_text' | 'emblem' | 'photo_text' | 'american_traditional_tattoo' | 'watercolor_splash' | 'art_deco' | 'pop_art' | 'cosmic_galaxy' | 'japanese_ukiyo-e' | 'distressed_vintage' | 'typography_focus' | 'abstract_geometric';
-export type ModelPose = 'standing' | 'sitting' | 'recumbent' | 'smiling_glasses' | 'back' | 'drinking_tea' | 'jumping' | 'dancing' | 'meditating' | 'heroic' | 'action' | 'yoga' | 'casual_lean' | 'walking_street' | 'laughing' | 'arms_crossed' | 'thinking' | 'hands_in_pockets';
+export type ModelPose = 'flat_lay_simple' | 'standing' | 'sitting' | 'sitting_floor_cozy' | 'recumbent' | 'smiling_glasses' | 'back' | 'drinking_tea' | 'jumping' | 'dancing' | 'meditating' | 'heroic' | 'action' | 'yoga' | 'casual_lean' | 'walking_street' | 'laughing' | 'arms_crossed' | 'thinking' | 'hands_in_pockets' | 'closeup_casual' | 'sitting_hand_hip' | 'sitting_on_counter';
 export type ModelAudience = 
   'woman_20s_athletic' | 'woman_30s_casual' | 'woman_40s_professional' | 'woman_50s_elegant' | 'middle_aged_woman_artist' | 'elderly_woman_gardener' |
   'man_20s_student' | 'man_30s_creative' | 'man_40s_business' | 'man_50s_distinguished' | 'teenager_male_gamer' | 'young_man_musician';
@@ -53,18 +53,20 @@ export type PuzzleSetting = 'on_wooden_table' | 'family_playing' | 'flat_lay_min
 
 
 export type ImageMode = 'fit' | 'fit_blur' | 'fit_transparent' | 'crop' | 'stretch';
+export type AspectRatio = '1:1' | '16:9' | '9:16';
 
 
 export interface DesignOptions {
   productType: ProductType;
   logo: string | null;
   text: string;
-  textColor: string;
   productColor: string; // Renamed from tshirtColor
+  textColor: string;
   font: TshirtFont;
   textStyle: TextStyle;
   gradientStartColor: string;
   gradientEndColor: string;
+  aspectRatio: AspectRatio;
   
   // T-shirt specific
   style: DesignStyle;

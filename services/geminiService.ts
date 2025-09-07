@@ -1,7 +1,7 @@
 // FIX: Import `GenerateImagesResponse` to correctly type the response from the image generation API.
 import { GoogleGenAI, GenerateContentResponse, GenerateImagesResponse, Part, Modality, HarmCategory, HarmBlockThreshold } from "@google/genai";
-import type { DesignOptions, DesignStyle, ModelPose, ModelAudience, TshirtFont, BagMaterial, TextStyle, FrameStyle, FrameModel, MugStyle, MugModel, SipperGlassStyle, SipperGlassModel, TumblerStyle, TumblerModel, HalloweenTumblerStyle, HalloweenTumblerSetting, TumblerTrioStyle, TumblerTrioSetting, PhoneCaseStyle, PhoneCaseModel, StickerStyle, StickerSetting, PosterStyle, PosterSetting, WalletStyle, WalletModel, CapStyle, CapModel, PillowStyle, PillowSetting, FlatLayStyle, PuzzleStyle, PuzzleSetting } from "../types";
-import { MODEL_AUDIENCES, FRAME_MODELS, MUG_MODELS, SIPPER_GLASS_MODELS, TUMBLER_MODELS, HALLOWEEN_TUMBLER_SETTINGS, TUMBLER_TRIO_SETTINGS, PHONE_CASE_MODELS, STICKER_SETTINGS, POSTER_SETTINGS, WALLET_MODELS, CAP_MODELS, PILLOW_SETTINGS, FLAT_LAY_STYLES, PUZZLE_SETTINGS } from "../constants";
+import type { DesignOptions, DesignStyle, ModelPose, ModelAudience, TshirtFont, BagMaterial, TextStyle, FrameStyle, FrameModel, MugStyle, MugModel, SipperGlassStyle, SipperGlassModel, TumblerStyle, TumblerModel, HalloweenTumblerStyle, HalloweenTumblerSetting, TumblerTrioStyle, TumblerTrioSetting, PhoneCaseStyle, PhoneCaseModel, StickerStyle, StickerSetting, PosterStyle, PosterSetting, WalletStyle, WalletModel, CapStyle, CapModel, PillowStyle, PillowSetting, FlatLayStyle, PuzzleStyle, PuzzleSetting, AspectRatio } from "../types";
+import { MODEL_AUDIENCES, FRAME_MODELS, MUG_MODELS, SIPPER_GLASS_MODELS, TUMBLER_MODELS, HALLOWEEN_TUMBLER_SETTINGS, TUMBLER_TRIO_SETTINGS, PHONE_CASE_MODELS, STICKER_SETTINGS, POSTER_SETTINGS, WALLET_MODELS, CAP_MODELS, PILLOW_SETTINGS, FLAT_LAY_STYLES, PUZZLE_SETTINGS, PRODUCT_COLORS } from "../constants";
 
 // IMPORTANT: This key is read from environment variables and should not be hardcoded.
 const API_KEY = process.env.API_KEY;
@@ -94,6 +94,17 @@ const withRetry = async <T>(apiCall: () => Promise<T>, maxRetries = 5): Promise<
 
 
 /**
+ * Gets the color name from a hex value for more descriptive AI prompts.
+ * @param hex The hex color string.
+ * @returns The color name or the original hex if not found.
+ */
+const getColorName = (hex: string): string => {
+    const color = PRODUCT_COLORS.find(c => c.value.toLowerCase() === hex.toLowerCase());
+    return color ? color.name : hex;
+};
+
+
+/**
  * Calculates whether black or white text will have a better contrast against a given hex color.
  * @param hex The hex color of the background.
  * @returns 'white' or 'black'.
@@ -166,6 +177,9 @@ const getPoseDescription = (pose: ModelPose): string => {
     switch (pose) {
         case 'standing': return 'standing pose,';
         case 'sitting': return 'sitting on a stool,';
+        case 'sitting_floor_cozy': return 'sitting cross-legged on the floor in a cozy, well-lit setting, smiling warmly towards the camera,';
+        case 'sitting_hand_hip': return 'a relaxed sitting pose on a neutral surface, with one hand casually resting on the hip,';
+        case 'sitting_on_counter': return 'sitting cross-legged on a clean kitchen counter in a modern, well-lit kitchen, looking relaxed and happy,';
         case 'recumbent': return 'recumbent pose (lying down gracefully on a neutral surface),';
         case 'smiling_glasses': return 'standing pose, smiling warmly, wearing stylish dark glasses,';
         case 'back': return 'standing with their back to the camera,';
@@ -174,7 +188,7 @@ const getPoseDescription = (pose: ModelPose): string => {
         case 'dancing': return 'dynamic dancing pose, capturing movement,';
         case 'meditating': return 'sitting in a calm, cross-legged meditation pose,';
         case 'heroic': return 'powerful heroic pose, like a superhero,';
-        case 'action': return 'dynamic action pose, as if running or in motion,';
+        case 'action': return 'dynamic action pose, as if in motion,';
         case 'yoga': return 'serene yoga pose (e.g., tree pose),';
         case 'casual_lean': return 'casually leaning against a wall,';
         case 'walking_street': return 'dynamic walking pose on a blurred city street,';
@@ -182,6 +196,9 @@ const getPoseDescription = (pose: ModelPose): string => {
         case 'arms_crossed': return 'standing with arms crossed confidently,';
         case 'thinking': return 'pensive pose, hand to chin as if in thought,';
         case 'hands_in_pockets': return 'casual standing pose with hands in pockets,';
+        case 'closeup_casual': return 'a casual, close-up shot from the chest up against a clean, neutral studio background, focusing clearly on the garment,';
+        // flat_lay_simple is handled directly in generateBaseImage and doesn't use this function.
+        case 'flat_lay_simple': return ''; 
         default: return 'standing pose,';
     }
 }
@@ -428,16 +445,13 @@ const getTextStyleDescription = (style: TextStyle, contrastColor: 'white' | 'bla
  * This uses a text-to-image model to create a safe "canvas" for editing.
  */
 const generateBaseImage = async (options: DesignOptions): Promise<string> => {
-    const { productType, productColor, pose, audience, bagMaterial, frameStyle, frameModel, mugStyle, mugModel, sipperGlassStyle, sipperGlassModel, tumblerStyle, tumblerModel, halloweenTumblerStyle, halloweenTumblerSetting, tumblerTrioStyle, tumblerTrioSetting, phoneCaseStyle, phoneCaseModel, stickerStyle, stickerSetting, posterStyle, posterSetting, walletStyle, walletModel, capStyle, capModel, pillowStyle, pillowSetting, flatLayStyle, puzzleStyle, puzzleSetting } = options;
+    const { productType, productColor, pose, audience, bagMaterial, frameStyle, frameModel, mugStyle, mugModel, sipperGlassStyle, sipperGlassModel, tumblerStyle, tumblerModel, halloweenTumblerStyle, halloweenTumblerSetting, tumblerTrioStyle, tumblerTrioSetting, phoneCaseStyle, phoneCaseModel, stickerStyle, stickerSetting, posterStyle, posterSetting, walletStyle, walletModel, capStyle, capModel, pillowStyle, pillowSetting, flatLayStyle, puzzleStyle, puzzleSetting, aspectRatio } = options;
     let prompt;
 
     switch (productType) {
         case 'tshirt':
         case 'sweatshirt':
         case 'hoodie': {
-            const audienceDescription = getAudienceDescription(audience);
-            const poseDescription = getPoseDescription(pose);
-            const printLocation = pose === 'back' ? 'back' : 'front';
             let productGarment;
             if (productType === 'tshirt') {
                 productGarment = 't-shirt';
@@ -446,7 +460,14 @@ const generateBaseImage = async (options: DesignOptions): Promise<string> => {
             } else {
                 productGarment = 'hoodie';
             }
-            prompt = `Commercial product mockup photo, waist-up portrait. A hyperrealistic model, ${audienceDescription}, in a ${poseDescription} with a natural expression. The model has extremely detailed, natural skin texture with subtle pores and looks completely authentic. The model is wearing a plain, unbranded, high-quality ${productColor} ${productGarment} with detailed fabric weave and texture visible. The garment is shown clearly for a mockup. The background is a clean, modern, heavily out-of-focus studio setting. ${qualityPrompt}`;
+
+            if (pose === 'flat_lay_simple') {
+                prompt = `Top-down commercial product photo. A plain, unbranded, high-quality ${getColorName(productColor)} ${productGarment} is laid perfectly flat on a clean, neutral-colored wooden surface. The ${productGarment} has a few subtle, natural-looking wrinkles to show fabric texture. The lighting is soft and even, creating gentle, realistic shadows. The background is simple and out of focus. ${qualityPrompt}`;
+            } else {
+                const audienceDescription = getAudienceDescription(audience);
+                const poseDescription = getPoseDescription(pose);
+                prompt = `Commercial product mockup photo, waist-up portrait. A hyperrealistic model, ${audienceDescription}, in a ${poseDescription} with a natural expression. The model has extremely detailed, natural skin texture with subtle pores and looks completely authentic. The model is wearing a plain, unbranded, high-quality ${productColor} ${productGarment} with detailed fabric weave and texture visible. The garment is shown clearly for a mockup. The background is a clean, modern, heavily out-of-focus studio setting. ${qualityPrompt}`;
+            }
             break;
         }
         case 'bag':
@@ -527,9 +548,6 @@ const generateBaseImage = async (options: DesignOptions): Promise<string> => {
             throw new Error(`Invalid product type for base image generation: ${productType}`);
     }
 
-    const isPortrait = ['tshirt', 'sweatshirt', 'hoodie', 'bag', 'wallet', 'wooden_frame', 'tea_mug', 'sipper_glass', 'tumbler_wrap', 'phone_case', 'cap', 'poster'].includes(productType);
-    const aspectRatio = isPortrait ? '9:16' : '1:1';
-
     // FIX: Explicitly provide the response type to withRetry to fix errors on accessing response.generatedImages.
     const response = await withRetry<GenerateImagesResponse>(() => ai.models.generateImages({
         model: 'imagen-4.0-generate-001',
@@ -558,7 +576,7 @@ const generateBaseImage = async (options: DesignOptions): Promise<string> => {
 // These functions create prompts for the second step: editing the base image.
 
 const getTshirtEditPrompt = (options: DesignOptions): string => {
-    const { style, text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { style, text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const personaPrompt = `As a world-class photorealistic mockup artist, your task is to add a design to the t-shirt in the provided image.`;
     const basePrompt = `${personaPrompt}
@@ -572,8 +590,9 @@ ${criticalRealismInstructions}
 
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${textColor}".\n- ${textStyleDescription}`;
+    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${colorName}".\n- ${textStyleDescription}`;
 
     switch (style) {
         case 'full_front':
@@ -616,7 +635,7 @@ ${criticalRealismInstructions}
 };
 
 const getFlatLayEditPrompt = (options: DesignOptions): string => {
-    const { style, text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { style, text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const personaPrompt = `As a world-class photorealistic mockup artist, your task is to add a graphic design to the T-shirt in the flat lay image.`;
     const basePrompt = `${personaPrompt}
@@ -631,8 +650,9 @@ ${criticalRealismInstructions}
 
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${textColor}".\n- ${textStyleDescription}`;
+    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${colorName}".\n- ${textStyleDescription}`;
 
     switch (style) {
         case 'full_front':
@@ -675,7 +695,7 @@ ${criticalRealismInstructions}
 };
 
 const getSweatshirtEditPrompt = (options: DesignOptions): string => {
-    const { style, text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { style, text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const personaPrompt = `As a world-class photorealistic mockup artist, your task is to add a design to the sweatshirt in the provided image.`;
     const basePrompt = `${personaPrompt}
@@ -689,8 +709,9 @@ ${criticalRealismInstructions}
 
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${textColor}".\n- ${textStyleDescription}`;
+    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${colorName}".\n- ${textStyleDescription}`;
 
     switch (style) {
         case 'full_front':
@@ -733,7 +754,7 @@ ${criticalRealismInstructions}
 };
 
 const getHoodieEditPrompt = (options: DesignOptions): string => {
-    const { style, text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { style, text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const personaPrompt = `As a world-class photorealistic mockup artist, your task is to add a design to the hoodie in the provided image.`;
     const basePrompt = `${personaPrompt}
@@ -748,8 +769,9 @@ ${criticalRealismInstructions}
 
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${textColor}".\n- ${textStyleDescription}`;
+    const textStylingPrompt = `- The text must be rendered in the "${fontName}" font.\n- The text color must be "${colorName}".\n- ${textStyleDescription}`;
 
     switch (style) {
         case 'full_front':
@@ -792,12 +814,13 @@ ${criticalRealismInstructions}
 };
 
 const getBagEditPrompt = (options: DesignOptions): string => {
-    const { bagMaterial, text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { bagMaterial, text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the bag.\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the bag.\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a photorealistic mockup artist, add a design to the bag in the provided image.
 - The design consists of the provided logo image ${textProvided ? `and text.` : ''}
 - Combine the elements into a cohesive composition on the front of the bag.
@@ -808,12 +831,13 @@ ${textStylingPrompt}
 };
 
 const getWalletEditPrompt = (options: DesignOptions): string => {
-    const { text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the wallet.\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the wallet.\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a product mockup artist, add a design to the plain leather wallet in the provided image.
 - The design consists of the provided logo image ${textProvided ? `and text.` : ''}
 - Combine the elements into a cohesive, centered composition on the front of the wallet.
@@ -825,12 +849,13 @@ ${textStylingPrompt}
 };
 
 const getCapEditPrompt = (options: DesignOptions): string => {
-    const { text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the cap.\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the cap.\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a product mockup artist, add a design to the plain cap in the provided image.
 - The design consists of the provided logo image ${textProvided ? `and text.` : ''}
 - Combine the elements into a cohesive, centered composition on the front panel of the cap.
@@ -842,12 +867,13 @@ ${textStylingPrompt}
 };
 
 const getPillowEditPrompt = (options: DesignOptions): string => {
-    const { text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the pillow.\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The text "${text}" must be added to the pillow.\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a product mockup artist, add a design to the plain pillow in the provided image.
 - The design consists of the provided logo image ${textProvided ? `and text.` : ''}
 - Combine the elements into a cohesive, centered composition on the front of the pillow.
@@ -913,12 +939,13 @@ const getTumblerTrioEditPrompt = (): string => {
 };
 
 const getPhoneCaseEditPrompt = (options: DesignOptions): string => {
-    const { text, font, textColor, textStyle, productColor, gradientStartColor, gradientEndColor } = options;
+    const { text, font, textStyle, textColor, productColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     const contrastColor = getContrastColor(productColor);
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, contrastColor, gradientStartColor, gradientEndColor);
-    const textStylingPrompt = textProvided ? `- The text "${text}" must be added on top of the design.\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The text "${text}" must be added on top of the design.\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a product mockup artist, add a design to the plain phone case in the provided image.
 - The provided logo image must be applied as a full-wrap design, covering the entire back of the phone case.
 - The design must look like a high-quality, permanent print that follows the contours of the case and wraps around the camera cutout realistically.
@@ -929,11 +956,12 @@ ${textStylingPrompt}
 };
 
 const getStickerEditPrompt = (options: DesignOptions): string => {
-    const { text, font, textColor, textStyle, gradientStartColor, gradientEndColor } = options;
+    const { text, font, textStyle, textColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, 'black', gradientStartColor, gradientEndColor); // Sticker is white, so contrast is black
-    const textStylingPrompt = textProvided ? `- The design should incorporate the text "${text}".\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The design should incorporate the text "${text}".\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a sticker designer, your task is to apply a design to the blank sticker in the image.
 - The design is composed of the provided logo image ${textProvided ? 'and text.' : '.'}
 - Combine these elements into a single, cohesive sticker design.
@@ -945,11 +973,12 @@ ${textStylingPrompt}
 };
 
 const getPosterEditPrompt = (options: DesignOptions): string => {
-    const { text, font, textColor, textStyle, gradientStartColor, gradientEndColor } = options;
+    const { text, font, textStyle, textColor, gradientStartColor, gradientEndColor } = options;
     const textProvided = text.trim().length > 0;
     const fontName = font.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const colorName = getColorName(textColor);
     const textStyleDescription = getTextStyleDescription(textStyle, 'black', gradientStartColor, gradientEndColor); // Poster is white, so contrast is black
-    const textStylingPrompt = textProvided ? `- The design should incorporate the text "${text}".\n- Render it in the "${fontName}" font with color "${textColor}".\n- ${textStyleDescription}` : '';
+    const textStylingPrompt = textProvided ? `- The design should incorporate the text "${text}".\n- Render it in the "${fontName}" font with color "${colorName}".\n- ${textStyleDescription}` : '';
     return `As a professional graphic designer, place a complete design onto the blank poster in the provided image.
 - The design consists of the provided artwork image ${textProvided ? 'and text.' : '.'}
 - Combine these elements into a single, compelling, and well-composed poster design.

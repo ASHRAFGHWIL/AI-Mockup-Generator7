@@ -1,7 +1,9 @@
 import React, { useRef } from 'react';
-import type { DesignOptions, SetDesignOptions, TextStyle, ImageMode, DesignStyle, ModelPose, ModelAudience, TshirtFont, BagMaterial, WalletStyle, WalletModel, FrameStyle, FrameModel, MugStyle, MugModel, SipperGlassStyle, SipperGlassModel, TumblerStyle, TumblerModel, HalloweenTumblerStyle, HalloweenTumblerSetting, TumblerTrioStyle, TumblerTrioSetting, EngravingMaterial, PhoneCaseStyle, PhoneCaseModel, StickerStyle, StickerSetting, PosterStyle, PosterSetting, CapStyle, CapModel, PillowStyle, PillowSetting, FlatLayStyle, PuzzleStyle, PuzzleSetting, ProductType } from '../types';
+import type { DesignOptions, SetDesignOptions, TextStyle, ImageMode, DesignStyle, ModelPose, ModelAudience, TshirtFont, BagMaterial, WalletStyle, WalletModel, FrameStyle, FrameModel, MugStyle, MugModel, SipperGlassStyle, SipperGlassModel, TumblerStyle, TumblerModel, HalloweenTumblerStyle, HalloweenTumblerSetting, TumblerTrioStyle, TumblerTrioSetting, EngravingMaterial, PhoneCaseStyle, PhoneCaseModel, StickerStyle, StickerSetting, PosterStyle, PosterSetting, CapStyle, CapModel, PillowStyle, PillowSetting, FlatLayStyle, PuzzleStyle, PuzzleSetting, ProductType, AspectRatio } from '../types';
 import { PRODUCT_COLORS, DESIGN_STYLES, MODEL_POSES, MODEL_AUDIENCES, TSHIRT_FONTS, PRODUCT_TYPES, BAG_MATERIALS, TEXT_STYLES, FRAME_STYLES, FRAME_MODELS, MUG_STYLES, MUG_MODELS, SIPPER_GLASS_STYLES, SIPPER_GLASS_MODELS, TUMBLER_STYLES, TUMBLER_MODELS, HALLOWEEN_TUMBLER_STYLES, HALLOWEEN_TUMBLER_SETTINGS, TUMBLER_TRIO_STYLES, TUMBLER_TRIO_SETTINGS, ENGRAVING_MATERIALS, PHONE_CASE_STYLES, PHONE_CASE_MODELS, STICKER_STYLES, STICKER_SETTINGS, POSTER_STYLES, POSTER_SETTINGS, WALLET_STYLES, WALLET_MODELS, CAP_STYLES, CAP_MODELS, PILLOW_STYLES, PILLOW_SETTINGS, FLAT_LAY_STYLES, PUZZLE_STYLES, PUZZLE_SETTINGS } from '../constants';
-import { UploadIcon, TrashIcon, WandIcon, FitIcon, FitBlurIcon, FitTransparentIcon, CropIcon, StretchIcon } from './icons';
+import { UploadIcon, TrashIcon, WandIcon, FitIcon, FitBlurIcon, FitTransparentIcon, CropIcon, StretchIcon, AspectRatioSquareIcon, AspectRatioHorizontalIcon, AspectRatioVerticalIcon } from './icons';
+import ColorPicker from './ColorPicker';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface ControlsPanelProps {
   design: DesignOptions;
@@ -13,7 +15,6 @@ interface ControlsPanelProps {
   setImageMode: React.Dispatch<React.SetStateAction<ImageMode>>;
 }
 
-// Helper function to generate CSS for text style previews
 const getTextStylePreview = (styleId: TextStyle): React.CSSProperties => {
     const baseStyle: React.CSSProperties = {
         fontFamily: 'Impact, sans-serif',
@@ -48,15 +49,8 @@ const getTextStylePreview = (styleId: TextStyle): React.CSSProperties => {
     }
 };
 
-const imageModes: { id: ImageMode, name: string, icon: React.FC<{className?: string}> }[] = [
-    { id: 'fit_blur', name: 'Adjust Blur', icon: FitBlurIcon },
-    { id: 'fit_transparent', name: 'Adjust Transparency', icon: FitTransparentIcon },
-    { id: 'crop', name: 'Crop', icon: CropIcon },
-    { id: 'stretch', name: 'Stretch', icon: StretchIcon },
-];
-
-
 const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGenerate, isLoading, handleLogoChange, imageMode, setImageMode }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const removeLogo = () => {
@@ -69,42 +63,33 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
   const femaleAudiences = MODEL_AUDIENCES.filter(a => a.id.includes('woman'));
   const maleAudiences = MODEL_AUDIENCES.filter(a => a.id.includes('man') || a.id.includes('male'));
 
-  const getProductColorLabel = () => {
-    switch (design.productType) {
-        case 'tshirt': return 'T-Shirt Color';
-        case 'sweatshirt': return 'Sweatshirt Color';
-        case 'hoodie': return 'Hoodie Color';
-        case 'bag': return 'Bag Color';
-        case 'wallet': return 'Wallet Color';
-        case 'cap': return 'Cap Color';
-        case 'pillow': return 'Pillow Color';
-        case 'flat_lay': return 'T-Shirt Color';
-        case 'wooden_frame': return 'Frame Color';
-        case 'tea_mug': return 'Mug Color';
-        case 'sipper_glass': return 'Liquid Color';
-        case 'tumbler_wrap': return 'Tumbler Color';
-        case 'halloween_tumbler': return 'Tumbler Color';
-        case 'tumbler_trio': return 'Tumbler Color';
-        case 'phone_case': return 'Case Color';
-        // These product types don't have a color picker
-        case 'sticker':
-        case 'poster':
-        case 'laser_engraving':
-        case 'jigsaw_puzzle':
- return null; 
-        default: return 'Product Color';
-    }
-  }
+  const imageModes: { id: ImageMode, nameKey: string, icon: React.FC<{className?: string}> }[] = [
+    { id: 'fit_blur', nameKey: 'imageMode_fit_blur', icon: FitBlurIcon },
+    { id: 'fit_transparent', nameKey: 'imageMode_fit_transparent', icon: FitTransparentIcon },
+    { id: 'crop', nameKey: 'imageMode_crop', icon: CropIcon },
+    { id: 'stretch', nameKey: 'imageMode_stretch', icon: StretchIcon },
+  ];
+
+  const aspectRatios: { id: AspectRatio, nameKey: string, icon: React.FC<{className?: string}> }[] = [
+    { id: '1:1', nameKey: 'aspectRatio_1_1', icon: AspectRatioSquareIcon },
+    { id: '16:9', nameKey: 'aspectRatio_16_9', icon: AspectRatioHorizontalIcon },
+    { id: '9:16', nameKey: 'aspectRatio_9_16', icon: AspectRatioVerticalIcon },
+  ];
   
+  const getProductColorLabel = () => {
+    const key = `productColorLabel_${design.productType}` as keyof typeof import('../i18n/en').en;
+    return t(key);
+  }
+
   const productColorLabel = getProductColorLabel();
 
   return (
     <div className="w-full lg:w-1/3 xl:w-1/4 bg-gray-800 p-6 rounded-lg shadow-2xl space-y-6">
-      <h2 className="text-2xl font-bold text-white">Customize Your Design</h2>
+      <h2 className="text-2xl font-bold text-white">{t('controlsTitle')}</h2>
 
       {/* Product Type */}
       <div>
-        <label htmlFor="product-type" className="block text-sm font-medium text-gray-300">Product Type</label>
+        <label htmlFor="product-type" className="block text-sm font-medium text-gray-300">{t('productTypeLabel')}</label>
         <select
           id="product-type"
           value={design.productType}
@@ -113,7 +98,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         >
           {PRODUCT_TYPES.map(type => (
             <option key={type.id} value={type.id}>
-              {type.name}
+              {t(type.nameKey as keyof typeof import('../i18n/en').en)}
             </option>
           ))}
         </select>
@@ -122,7 +107,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
 
       {/* Logo Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Logo / Artwork</label>
+        <label className="block text-sm font-medium text-gray-300 mb-2">{t('logoArtworkLabel')}</label>
         <div className="mt-1 flex items-center justify-between p-3 border-2 border-dashed border-gray-600 rounded-md">
             {design.logo ? (
                 <div className="flex items-center gap-4">
@@ -140,8 +125,8 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                         className="group flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-indigo-400 transition-colors"
                     >
                         <UploadIcon className="w-10 h-10 mb-2"/>
-                        <span className="font-medium">Upload an image</span>
-                        <span className="text-xs">PNG, JPG up to 4MB</span>
+                        <span className="font-medium">{t('uploadImage')}</span>
+                        <span className="text-xs">{t('uploadHint')}</span>
                     </button>
                 </div>
             )}
@@ -156,7 +141,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
             {/* Custom Text */}
             <div>
                 <label htmlFor="custom-text" className="block text-sm font-medium text-gray-300">
-                Text
+                {t('textLabel')}
                 </label>
                 <div className="mt-1">
                 <input
@@ -164,7 +149,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                     id="custom-text"
                     value={design.text}
                     onChange={(e) => setDesign(d => ({ ...d, text: e.target.value }))}
-                    placeholder="Your awesome text"
+                    placeholder={t('textPlaceholder')}
                     className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition"
                 />
                 </div>
@@ -172,7 +157,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
             
             {/* Font Family */}
             <div>
-              <label htmlFor="font-family" className="block text-sm font-medium text-gray-300">Font</label>
+              <label htmlFor="font-family" className="block text-sm font-medium text-gray-300">{t('fontLabel')}</label>
               <select
                 id="font-family"
                 value={design.font}
@@ -189,7 +174,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
 
             {/* Text Style */}
             <div>
-              <label htmlFor="text-style" className="block text-sm font-medium text-gray-300">Text Style</label>
+              <label htmlFor="text-style" className="block text-sm font-medium text-gray-300">{t('textStyleLabel')}</label>
               <select
                 id="text-style"
                 value={design.textStyle}
@@ -199,7 +184,6 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 {TEXT_STYLES.map(style => {
                     const optionStyle: React.CSSProperties = { ...getTextStylePreview(style.id) };
                     
-                    // Override styles for dropdown option compatibility
                     optionStyle.backgroundColor = '#374151';
                     optionStyle.height = 'auto';
                     optionStyle.lineHeight = 'normal';
@@ -207,9 +191,8 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                     optionStyle.padding = '4px 8px';
                     optionStyle.fontSize = '1.2rem';
 
-                    // Fallback for text-clipping styles which don't work in <option>
                     if (optionStyle.color === 'transparent') {
-                        optionStyle.color = '#E5E7EB'; // text-gray-200
+                        optionStyle.color = '#E5E7EB';
                         optionStyle.background = 'none';
                     }
 
@@ -219,19 +202,24 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                         value={style.id}
                         style={optionStyle}
                     >
-                        {style.name}
+                        {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                     </option>
                     );
                 })}
               </select>
             </div>
 
+            <ColorPicker
+                label={t('textColorLabel')}
+                colors={PRODUCT_COLORS}
+                selectedValue={design.textColor}
+                onChange={(color) => setDesign(d => ({ ...d, textColor: color }))}
+            />
 
-            {/* Conditional Color Pickers */}
-            {design.textStyle === 'gradient' ? (
+            {design.textStyle === 'gradient' && (
               <>
                 <div>
-                  <label htmlFor="gradient-start-color" className="block text-sm font-medium text-gray-300">Gradient Start</label>
+                  <label htmlFor="gradient-start-color" className="block text-sm font-medium text-gray-300">{t('gradientStartLabel')}</label>
                   <select
                     id="gradient-start-color"
                     value={design.gradientStartColor}
@@ -246,7 +234,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="gradient-end-color" className="block text-sm font-medium text-gray-300">Gradient End</label>
+                  <label htmlFor="gradient-end-color" className="block text-sm font-medium text-gray-300">{t('gradientEndLabel')}</label>
                   <select
                     id="gradient-end-color"
                     value={design.gradientEndColor}
@@ -261,37 +249,14 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                   </select>
                 </div>
               </>
-            ) : (
-              <>
-                {design.textStyle !== 'pastel_rainbow' && (
-                  <div>
-                    <label htmlFor="text-color" className="block text-sm font-medium text-gray-300">Text Color</label>
-                    <select
-                      id="text-color"
-                      value={design.textColor}
-                      onChange={(e) => setDesign(d => ({ ...d, textColor: e.target.value }))}
-                      className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition"
-                    >
-                      {PRODUCT_COLORS.map(color => (
-                        <option key={color.name} value={color.value}>
-                          {color.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </>
             )}
         </>
       )}
 
-
-      {/* Conditional T-Shirt/Sweatshirt/Hoodie Options */}
       {(design.productType === 'tshirt' || design.productType === 'sweatshirt' || design.productType === 'hoodie') && (
         <>
-          {/* Design Style */}
           <div>
-            <label htmlFor="design-style" className="block text-sm font-medium text-gray-300">Design Style</label>
+            <label htmlFor="design-style" className="block text-sm font-medium text-gray-300">{t('designStyleLabel')}</label>
             <select
               id="design-style"
               value={design.style}
@@ -300,15 +265,14 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
             >
               {DESIGN_STYLES.map(style => (
                 <option key={style.id} value={style.id}>
-                  {style.name}
+                  {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Model Pose */}
           <div>
-            <label htmlFor="model-pose" className="block text-sm font-medium text-gray-300">Model Pose</label>
+            <label htmlFor="model-pose" className="block text-sm font-medium text-gray-300">{t('presentationStyleLabel')}</label>
             <select
               id="model-pose"
               value={design.pose}
@@ -317,44 +281,44 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
             >
               {MODEL_POSES.map(pose => (
                 <option key={pose.id} value={pose.id}>
-                  {pose.name}
+                  {t(pose.nameKey as keyof typeof import('../i18n/en').en)}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Model Audience */}
-          <div>
-            <label htmlFor="model-audience" className="block text-sm font-medium text-gray-300">Model</label>
-            <select
-              id="model-audience"
-              value={design.audience}
-              onChange={(e) => setDesign(d => ({ ...d, audience: e.target.value as ModelAudience }))}
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition"
-            >
-              <optgroup label="Female">
-                {femaleAudiences.map(audience => (
-                  <option key={audience.id} value={audience.id}>
-                    {audience.name}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Male">
-                {maleAudiences.map(audience => (
-                  <option key={audience.id} value={audience.id}>
-                    {audience.name}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
+          {design.pose !== 'flat_lay_simple' && (
+            <div>
+              <label htmlFor="model-audience" className="block text-sm font-medium text-gray-300">{t('modelLabel')}</label>
+              <select
+                id="model-audience"
+                value={design.audience}
+                onChange={(e) => setDesign(d => ({ ...d, audience: e.target.value as ModelAudience }))}
+                className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition"
+              >
+                <optgroup label={t('femaleModels')}>
+                  {femaleAudiences.map(audience => (
+                    <option key={audience.id} value={audience.id}>
+                      {t(audience.nameKey as keyof typeof import('../i18n/en').en)}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label={t('maleModels')}>
+                  {maleAudiences.map(audience => (
+                    <option key={audience.id} value={audience.id}>
+                      {t(audience.nameKey as keyof typeof import('../i18n/en').en)}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+          )}
         </>
       )}
 
-      {/* Conditional Bag Options */}
       {design.productType === 'bag' && (
         <div>
-          <label htmlFor="bag-material" className="block text-sm font-medium text-gray-300">Bag Material</label>
+          <label htmlFor="bag-material" className="block text-sm font-medium text-gray-300">{t('bagMaterialLabel')}</label>
           <select
             id="bag-material"
             value={design.bagMaterial}
@@ -363,18 +327,17 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
           >
             {BAG_MATERIALS.map(material => (
               <option key={material.id} value={material.id}>
-                {material.name}
+                {t(material.nameKey as keyof typeof import('../i18n/en').en)}
               </option>
             ))}
           </select>
         </div>
       )}
       
-      {/* Conditional Wallet Options */}
       {design.productType === 'wallet' && (
         <>
             <div>
-                <label htmlFor="wallet-style" className="block text-sm font-medium text-gray-300">Wallet Style</label>
+                <label htmlFor="wallet-style" className="block text-sm font-medium text-gray-300">{t('walletStyleLabel')}</label>
                 <select
                     id="wallet-style"
                     value={design.walletStyle}
@@ -383,13 +346,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {WALLET_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="wallet-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="wallet-model" className="block text-sm font-medium text-gray-300">{t('walletModelLabel')}</label>
                 <select
                     id="wallet-model"
                     value={design.walletModel}
@@ -398,7 +361,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {WALLET_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                            {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -406,11 +369,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Cap Options */}
       {design.productType === 'cap' && (
         <>
             <div>
-                <label htmlFor="cap-style" className="block text-sm font-medium text-gray-300">Cap Style</label>
+                <label htmlFor="cap-style" className="block text-sm font-medium text-gray-300">{t('capStyleLabel')}</label>
                 <select
                     id="cap-style"
                     value={design.capStyle}
@@ -419,13 +381,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {CAP_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="cap-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="cap-model" className="block text-sm font-medium text-gray-300">{t('capModelLabel')}</label>
                 <select
                     id="cap-model"
                     value={design.capModel}
@@ -434,7 +396,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {CAP_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                            {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -442,11 +404,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Pillow Options */}
       {design.productType === 'pillow' && (
         <>
             <div>
-                <label htmlFor="pillow-style" className="block text-sm font-medium text-gray-300">Pillow Style</label>
+                <label htmlFor="pillow-style" className="block text-sm font-medium text-gray-300">{t('pillowStyleLabel')}</label>
                 <select
                     id="pillow-style"
                     value={design.pillowStyle}
@@ -455,13 +416,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {PILLOW_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="pillow-setting" className="block text-sm font-medium text-gray-300">Setting</label>
+                <label htmlFor="pillow-setting" className="block text-sm font-medium text-gray-300">{t('pillowSettingLabel')}</label>
                 <select
                     id="pillow-setting"
                     value={design.pillowSetting}
@@ -470,7 +431,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {PILLOW_SETTINGS.map(setting => (
                         <option key={setting.id} value={setting.id}>
-                            {setting.name}
+                            {t(setting.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -478,11 +439,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Flat Lay Options */}
       {design.productType === 'flat_lay' && (
         <>
             <div>
-                <label htmlFor="flat-lay-style" className="block text-sm font-medium text-gray-300">Flat Lay Style</label>
+                <label htmlFor="flat-lay-style" className="block text-sm font-medium text-gray-300">{t('flatLayStyleLabel')}</label>
                 <select
                     id="flat-lay-style"
                     value={design.flatLayStyle}
@@ -491,15 +451,14 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {FLAT_LAY_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             
-            {/* For flat lay, the t-shirt design styles are still relevant */}
             <div>
-                <label htmlFor="design-style" className="block text-sm font-medium text-gray-300">T-Shirt Design Style</label>
+                <label htmlFor="design-style" className="block text-sm font-medium text-gray-300">{t('tshirtDesignStyleLabel')}</label>
                 <select
                   id="design-style"
                   value={design.style}
@@ -508,7 +467,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                   {DESIGN_STYLES.map(style => (
                     <option key={style.id} value={style.id}>
-                      {style.name}
+                      {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                     </option>
                   ))}
                 </select>
@@ -516,11 +475,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Frame Options */}
       {design.productType === 'wooden_frame' && (
         <>
             <div>
-                <label htmlFor="frame-style" className="block text-sm font-medium text-gray-300">Frame Style</label>
+                <label htmlFor="frame-style" className="block text-sm font-medium text-gray-300">{t('frameStyleLabel')}</label>
                 <select
                     id="frame-style"
                     value={design.frameStyle}
@@ -529,13 +487,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {FRAME_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="frame-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="frame-model" className="block text-sm font-medium text-gray-300">{t('frameModelLabel')}</label>
                 <select
                     id="frame-model"
                     value={design.frameModel}
@@ -544,7 +502,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {FRAME_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                            {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -552,11 +510,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Mug Options */}
       {design.productType === 'tea_mug' && (
         <>
             <div>
-                <label htmlFor="mug-style" className="block text-sm font-medium text-gray-300">Mug Style</label>
+                <label htmlFor="mug-style" className="block text-sm font-medium text-gray-300">{t('mugStyleLabel')}</label>
                 <select
                     id="mug-style"
                     value={design.mugStyle}
@@ -565,13 +522,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {MUG_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="mug-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="mug-model" className="block text-sm font-medium text-gray-300">{t('mugModelLabel')}</label>
                 <select
                     id="mug-model"
                     value={design.mugModel}
@@ -580,7 +537,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {MUG_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                            {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -588,11 +545,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Sipper Glass Options */}
       {design.productType === 'sipper_glass' && (
         <>
             <div>
-                <label htmlFor="sipper-style" className="block text-sm font-medium text-gray-300">Glass Style</label>
+                <label htmlFor="sipper-style" className="block text-sm font-medium text-gray-300">{t('sipperStyleLabel')}</label>
                 <select
                     id="sipper-style"
                     value={design.sipperGlassStyle}
@@ -601,13 +557,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {SIPPER_GLASS_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="sipper-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="sipper-model" className="block text-sm font-medium text-gray-300">{t('sipperModelLabel')}</label>
                 <select
                     id="sipper-model"
                     value={design.sipperGlassModel}
@@ -616,7 +572,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {SIPPER_GLASS_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                            {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -624,11 +580,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Tumbler Wrap Options */}
       {design.productType === 'tumbler_wrap' && (
         <>
             <div>
-                <label htmlFor="tumbler-style" className="block text-sm font-medium text-gray-300">Tumbler Style</label>
+                <label htmlFor="tumbler-style" className="block text-sm font-medium text-gray-300">{t('tumblerStyleLabel')}</label>
                 <select
                     id="tumbler-style"
                     value={design.tumblerStyle}
@@ -637,13 +592,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {TUMBLER_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="tumbler-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="tumbler-model" className="block text-sm font-medium text-gray-300">{t('tumblerModelLabel')}</label>
                 <select
                     id="tumbler-model"
                     value={design.tumblerModel}
@@ -652,7 +607,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {TUMBLER_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                           {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -660,11 +615,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Halloween Tumbler Options */}
       {design.productType === 'halloween_tumbler' && (
         <>
             <div>
-                <label htmlFor="halloween-tumbler-style" className="block text-sm font-medium text-gray-300">Tumbler Style</label>
+                <label htmlFor="halloween-tumbler-style" className="block text-sm font-medium text-gray-300">{t('halloweenTumblerStyleLabel')}</label>
                 <select
                     id="halloween-tumbler-style"
                     value={design.halloweenTumblerStyle}
@@ -673,13 +627,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {HALLOWEEN_TUMBLER_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="halloween-tumbler-setting" className="block text-sm font-medium text-gray-300">Setting</label>
+                <label htmlFor="halloween-tumbler-setting" className="block text-sm font-medium text-gray-300">{t('halloweenTumblerSettingLabel')}</label>
                 <select
                     id="halloween-tumbler-setting"
                     value={design.halloweenTumblerSetting}
@@ -688,7 +642,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {HALLOWEEN_TUMBLER_SETTINGS.map(setting => (
                         <option key={setting.id} value={setting.id}>
-                            {setting.name}
+                            {t(setting.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -696,11 +650,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Tumbler Trio Options */}
       {design.productType === 'tumbler_trio' && (
         <>
             <div>
-                <label htmlFor="tumbler-trio-style" className="block text-sm font-medium text-gray-300">Tumbler Style</label>
+                <label htmlFor="tumbler-trio-style" className="block text-sm font-medium text-gray-300">{t('tumblerTrioStyleLabel')}</label>
                 <select
                     id="tumbler-trio-style"
                     value={design.tumblerTrioStyle}
@@ -709,13 +662,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {TUMBLER_TRIO_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="tumbler-trio-setting" className="block text-sm font-medium text-gray-300">Setting</label>
+                <label htmlFor="tumbler-trio-setting" className="block text-sm font-medium text-gray-300">{t('tumblerTrioSettingLabel')}</label>
                 <select
                     id="tumbler-trio-setting"
                     value={design.tumblerTrioSetting}
@@ -724,7 +677,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {TUMBLER_TRIO_SETTINGS.map(setting => (
                         <option key={setting.id} value={setting.id}>
-                            {setting.name}
+                            {t(setting.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -732,10 +685,9 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Engraving Options */}
       {design.productType === 'laser_engraving' && (
         <div>
-            <label htmlFor="engraving-material" className="block text-sm font-medium text-gray-300">Material</label>
+            <label htmlFor="engraving-material" className="block text-sm font-medium text-gray-300">{t('engravingMaterialLabel')}</label>
             <select
                 id="engraving-material"
                 value={design.engravingMaterial}
@@ -744,18 +696,17 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
             >
                 {ENGRAVING_MATERIALS.map(material => (
                     <option key={material.id} value={material.id}>
-                        {material.name}
+                        {t(material.nameKey as keyof typeof import('../i18n/en').en)}
                     </option>
                 ))}
             </select>
         </div>
       )}
 
-      {/* Conditional Phone Case Options */}
       {design.productType === 'phone_case' && (
         <>
             <div>
-                <label htmlFor="phone-case-style" className="block text-sm font-medium text-gray-300">Case Style</label>
+                <label htmlFor="phone-case-style" className="block text-sm font-medium text-gray-300">{t('phoneCaseStyleLabel')}</label>
                 <select
                     id="phone-case-style"
                     value={design.phoneCaseStyle}
@@ -764,13 +715,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {PHONE_CASE_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="phone-case-model" className="block text-sm font-medium text-gray-300">Model & Setting</label>
+                <label htmlFor="phone-case-model" className="block text-sm font-medium text-gray-300">{t('phoneCaseModelLabel')}</label>
                 <select
                     id="phone-case-model"
                     value={design.phoneCaseModel}
@@ -779,7 +730,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {PHONE_CASE_MODELS.map(model => (
                         <option key={model.id} value={model.id}>
-                            {model.name}
+                            {t(model.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -787,11 +738,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Sticker Options */}
       {design.productType === 'sticker' && (
         <>
             <div>
-                <label htmlFor="sticker-style" className="block text-sm font-medium text-gray-300">Sticker Style</label>
+                <label htmlFor="sticker-style" className="block text-sm font-medium text-gray-300">{t('stickerStyleLabel')}</label>
                 <select
                     id="sticker-style"
                     value={design.stickerStyle}
@@ -800,13 +750,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {STICKER_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="sticker-setting" className="block text-sm font-medium text-gray-300">Setting</label>
+                <label htmlFor="sticker-setting" className="block text-sm font-medium text-gray-300">{t('stickerSettingLabel')}</label>
                 <select
                     id="sticker-setting"
                     value={design.stickerSetting}
@@ -815,7 +765,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {STICKER_SETTINGS.map(setting => (
                         <option key={setting.id} value={setting.id}>
-                            {setting.name}
+                            {t(setting.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -823,11 +773,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Poster Options */}
       {design.productType === 'poster' && (
         <>
             <div>
-                <label htmlFor="poster-style" className="block text-sm font-medium text-gray-300">Poster Finish</label>
+                <label htmlFor="poster-style" className="block text-sm font-medium text-gray-300">{t('posterStyleLabel')}</label>
                 <select
                     id="poster-style"
                     value={design.posterStyle}
@@ -836,13 +785,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {POSTER_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="poster-setting" className="block text-sm font-medium text-gray-300">Setting</label>
+                <label htmlFor="poster-setting" className="block text-sm font-medium text-gray-300">{t('posterSettingLabel')}</label>
                 <select
                     id="poster-setting"
                     value={design.posterSetting}
@@ -851,7 +800,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {POSTER_SETTINGS.map(setting => (
                         <option key={setting.id} value={setting.id}>
-                            {setting.name}
+                            {t(setting.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
@@ -859,11 +808,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         </>
       )}
 
-      {/* Conditional Jigsaw Puzzle Options */}
       {design.productType === 'jigsaw_puzzle' && (
         <>
             <div>
-                <label htmlFor="puzzle-style" className="block text-sm font-medium text-gray-300">Puzzle Style</label>
+                <label htmlFor="puzzle-style" className="block text-sm font-medium text-gray-300">{t('puzzleStyleLabel')}</label>
                 <select
                     id="puzzle-style"
                     value={design.puzzleStyle}
@@ -872,13 +820,13 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {PUZZLE_STYLES.map(style => (
                         <option key={style.id} value={style.id}>
-                            {style.name}
+                            {t(style.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="puzzle-setting" className="block text-sm font-medium text-gray-300">Setting</label>
+                <label htmlFor="puzzle-setting" className="block text-sm font-medium text-gray-300">{t('puzzleSettingLabel')}</label>
                 <select
                     id="puzzle-setting"
                     value={design.puzzleSetting}
@@ -887,17 +835,39 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 >
                     {PUZZLE_SETTINGS.map(setting => (
                         <option key={setting.id} value={setting.id}>
-                            {setting.name}
+                            {t(setting.nameKey as keyof typeof import('../i18n/en').en)}
                         </option>
                     ))}
                 </select>
             </div>
         </>
       )}
+
+      {/* Aspect Ratio */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300">{t('photoFormatLabel')}</label>
+        <div className="mt-2 grid grid-cols-3 gap-2 rounded-lg bg-gray-700 p-1">
+          {aspectRatios.map(ratio => (
+            <button
+              key={ratio.id}
+              type="button"
+              title={`Set aspect ratio to ${t(ratio.nameKey as keyof typeof import('../i18n/en').en)} (${ratio.id})`}
+              onClick={() => setDesign(d => ({ ...d, aspectRatio: ratio.id }))}
+              className={`flex flex-col items-center justify-center text-center px-2 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500
+                ${design.aspectRatio === ratio.id ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`
+              }
+              aria-pressed={design.aspectRatio === ratio.id}
+            >
+              <ratio.icon className="w-6 h-6 mb-1" />
+              <span>{t(ratio.nameKey as keyof typeof import('../i18n/en').en)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       
       {/* Logo Placement */}
       <div>
-        <label htmlFor="logo-placement" className="block text-sm font-medium text-gray-300">Logo Placement</label>
+        <label htmlFor="logo-placement" className="block text-sm font-medium text-gray-300">{t('logoPlacementLabel')}</label>
         <select
           id="logo-placement"
           value={imageMode}
@@ -906,7 +876,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
         >
           {imageModes.map(mode => (
             <option key={mode.id} value={mode.id}>
-              {mode.name}
+              {t(mode.nameKey as keyof typeof import('../i18n/en').en)}
             </option>
           ))}
         </select>
@@ -915,21 +885,12 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
 
       {/* Product Color */}
       {productColorLabel && (
-        <div>
-          <label htmlFor="product-color" className="block text-sm font-medium text-gray-300">{productColorLabel}</label>
-          <select
-            id="product-color"
-            value={design.productColor}
-            onChange={(e) => setDesign(d => ({ ...d, productColor: e.target.value }))}
-            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition"
-          >
-            {PRODUCT_COLORS.map(color => (
-              <option key={color.name} value={color.value}>
-                {color.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ColorPicker
+            label={productColorLabel}
+            colors={PRODUCT_COLORS}
+            selectedValue={design.productColor}
+            onChange={(color) => setDesign(d => ({ ...d, productColor: color }))}
+        />
       )}
       
        {/* Generate Button */}
@@ -945,16 +906,16 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({ design, setDesign, onGene
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Generating...
+              {t('generatingButton')}
             </>
           ) : (
             <>
               <WandIcon className="w-5 h-5" />
-              {design.productType === 'laser_engraving' ? 'Generate Preview' : 'Generate Mockup'}
+              {design.productType === 'laser_engraving' ? t('generateEngravingButton') : t('generateButton')}
             </>
           )}
         </button>
-        {!design.logo && <p className="text-xs text-red-400 text-center mt-2">Please upload a logo to generate a mockup.</p>}
+        {!design.logo && <p className="text-xs text-red-400 text-center mt-2">{t('uploadLogoWarning')}</p>}
       </div>
     </div>
   );

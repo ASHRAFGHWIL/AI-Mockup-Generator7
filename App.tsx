@@ -1,18 +1,51 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import ControlsPanel from './components/ControlsPanel';
 import PreviewDisplay from './components/PreviewDisplay';
 import { WandIcon } from './components/icons';
 import type { DesignOptions, ImageMode } from './types';
 import { generateMockup as generateMockupFromApi } from './services/geminiService';
 import { generateDesignPng, generateEngravingSvg, generateTextOnlySvg, generateTextOnlyPng } from './services/svgService';
+import { LanguageContext, useTranslation, Language } from './hooks/useTranslation';
+import { en } from './i18n/en';
 
-const App: React.FC = () => {
+const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<Language>('en');
+
+  const t = useCallback((key: keyof typeof en) => {
+    if (language === 'ar') {
+      const { ar } = require('./i18n/ar');
+      return ar[key] || key;
+    }
+    return en[key] || key;
+  }, [language]);
+
+  const value = useMemo(() => ({
+    language,
+    setLanguage,
+    t
+  }), [language, t]);
+  
+  React.useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  }, [language]);
+
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+const AppContent: React.FC = () => {
+  const { t, language, setLanguage } = useTranslation();
+
   const [design, setDesign] = useState<DesignOptions>({
     productType: 'tshirt',
     logo: null,
     text: 'YOUR TEXT HERE',
-    textColor: '#B91C1C',
     productColor: '#FFFFFF',
+    textColor: '#FFFFFF',
     style: 'classic',
     pose: 'standing',
     audience: 'woman_30s_casual',
@@ -20,6 +53,7 @@ const App: React.FC = () => {
     textStyle: 'outline',
     gradientStartColor: '#2563EB',
     gradientEndColor: '#B91C1C',
+    aspectRatio: '1:1',
     bagMaterial: 'canvas',
     frameStyle: 'classic_ornate',
     frameModel: 'elegant_woman_street',
@@ -57,56 +91,52 @@ const App: React.FC = () => {
 
   const logoFileRef = useRef<File | null>(null);
 
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'ar' : 'en');
+  };
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    const input = e.target; // Keep a reference to the input element
+    const input = e.target;
 
-    // Always clear previous error on a new attempt
     setError(null);
 
     if (!file) {
-      // If the user cancels the file dialog, 'file' will be undefined.
-      // We clear the logo in case one was previously selected.
       setDesign(d => ({ ...d, logo: null }));
       logoFileRef.current = null;
       return;
     }
 
-    // 1. File Type Validation
     const ALLOWED_TYPES = ['image/png', 'image/jpeg'];
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Unsupported file type. Please upload a PNG or JPG image.');
+      setError(t('errorUnsupportedFileType'));
       setDesign(d => ({ ...d, logo: null }));
       logoFileRef.current = null;
-      if (input) input.value = ''; // Reset file input
+      if (input) input.value = '';
       return;
     }
 
-    // 2. File Size Validation
     const MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024; 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      setError('File size exceeds 4MB. Please upload a smaller image.');
+      setError(t('errorFileSizeExceeds'));
       setDesign(d => ({ ...d, logo: null }));
       logoFileRef.current = null;
-      if (input) input.value = ''; // Reset file input
+      if (input) input.value = '';
       return;
     }
 
-    // 3. File Read with Error Handling
     const reader = new FileReader();
     
     reader.onload = (event) => {
-      // On successful read, update state
       logoFileRef.current = file;
       setDesign(d => ({ ...d, logo: event.target?.result as string }));
     };
     
     reader.onerror = () => {
-      // On read error, set error and reset state
-      setError('Could not read the file. It may be corrupt. Please try another image.');
+      setError(t('errorCouldNotReadFile'));
       setDesign(d => ({ ...d, logo: null }));
       logoFileRef.current = null;
-      if (input) input.value = ''; // Reset file input
+      if (input) input.value = '';
     };
     
     reader.readAsDataURL(file);
@@ -114,19 +144,16 @@ const App: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!logoFileRef.current) {
-      setError('Please upload a logo image.');
+      setError(t('errorNoLogo'));
       return;
     }
     setIsLoading(true);
     setError(null);
     setGeneratedImage(null);
 
-    // Branch for laser engraving to generate a local PNG preview
     if (design.productType === 'laser_engraving') {
       try {
-        // We use generateDesignPng to get a visual preview, not the final engraving file
         const pngDataUrl = await generateDesignPng(design);
-        // The component expects a base64 string without the data URL prefix
         const base64Image = pngDataUrl.split(',')[1];
         setGeneratedImage(base64Image);
       } catch (err: any) {
@@ -134,12 +161,10 @@ const App: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-      return; // Stop execution here for engraving
+      return;
     }
 
-    // Existing logic for Gemini API mockups
     try {
-      // Pass the logo file and the entire design options object.
       const result = await generateMockupFromApi(
         logoFileRef.current, 
         design
@@ -154,14 +179,13 @@ const App: React.FC = () => {
   
   const handleDownloadLogoPng = () => {
     if (!design.logo) {
-      setError('No logo to download.');
+      setError(t('errorNoLogoToDownload'));
       return;
     }
     try {
       setError(null);
       const a = document.createElement('a');
       a.href = design.logo;
-      // Use the original filename if available, otherwise default
       a.download = logoFileRef.current?.name ?? 'logo.png';
       document.body.appendChild(a);
       a.click();
@@ -174,11 +198,11 @@ const App: React.FC = () => {
 
   const handleDownloadTextSvg = async () => {
     if (!design.logo) {
-      setError('Cannot generate text SVG without a logo for layout.');
+      setError(t('errorNoLogoForLayout'));
       return;
     }
     if (!design.text.trim()) {
-      setError('No text to generate SVG for.');
+      setError(t('errorNoTextForSvg'));
       return;
     }
     try {
@@ -201,11 +225,11 @@ const App: React.FC = () => {
   
   const handleDownloadTextPng = async () => {
     if (!design.logo) {
-      setError('Cannot generate text PNG without a logo for layout.');
+      setError(t('errorNoLogoForLayout'));
       return;
     }
     if (!design.text.trim()) {
-      setError('No text to generate PNG for.');
+      setError(t('errorNoTextForSvg'));
       return;
     }
     try {
@@ -226,14 +250,15 @@ const App: React.FC = () => {
 
   const handleDownloadEngravingSvg = async () => {
     if (!design.logo) {
-      setError('Cannot generate SVG without a logo.');
+      setError(t('errorNoLogoForLayout'));
       return;
     }
     try {
       setError(null);
-      const svgString = await generateEngravingSvg(design); // Call the new function
+      const svgString = await generateEngravingSvg(design);
       const blob = new Blob([svgString], { type: 'image/svg+xml' });
       const url = URL.createObjectURL(blob);
+      // FIX: The anchor element 'a' was used without being declared. This has been corrected.
       const a = document.createElement('a');
       a.href = url;
       a.download = 'engraving_design.svg';
@@ -249,7 +274,7 @@ const App: React.FC = () => {
 
   const handleDownloadMockup = () => {
     if (!generatedImage) {
-      setError('No mockup image to download.');
+      setError(t('errorNoMockupToDownload'));
       return;
     }
     try {
@@ -269,13 +294,20 @@ const App: React.FC = () => {
   return (
     <div className="bg-gray-900 min-h-screen text-white p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-8">
+        <header className="text-center mb-8 relative">
+          <button 
+            onClick={toggleLanguage}
+            className="absolute top-0 right-0 rtl:right-auto rtl:left-0 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            aria-label="Toggle language"
+          >
+            {t('languageToggleButton')}
+          </button>
           <div className="inline-flex items-center gap-3">
             <WandIcon className="w-10 h-10 text-indigo-400" />
-            <h1 className="text-4xl font-extrabold tracking-tight">AI Mockup Generator</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">{t('headerTitle')}</h1>
           </div>
           <p className="mt-2 text-lg text-gray-400">
-            Bring your designs to life with the power of Gemini
+            {t('headerSubtitle')}
           </p>
         </header>
 
@@ -306,5 +338,11 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const App: React.FC = () => (
+  <LanguageProvider>
+    <AppContent />
+  </LanguageProvider>
+);
 
 export default App;

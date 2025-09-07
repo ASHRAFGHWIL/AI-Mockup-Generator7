@@ -1,6 +1,7 @@
 import React from 'react';
 import { WandIcon, DownloadIcon } from './icons';
 import type { ProductType, ImageMode } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface PreviewDisplayProps {
   generatedImage: string | null;
@@ -15,17 +16,19 @@ interface PreviewDisplayProps {
   imageMode: ImageMode;
 }
 
-const LoadingMessages = [
-  "Summoning AI stylist...",
-  "Stitching pixels with digital thread...",
-  "Applying photorealistic magic...",
-  "Reticulating splines...",
-  "Warming up the rendering engine...",
-  "Perfecting the lighting...",
-];
-
 const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoading, error, productType, onDownloadLogoPng, onDownloadTextSvg, onDownloadTextPng, onDownloadEngravingSvg, onDownloadMockup, imageMode }) => {
-    const [loadingMessage, setLoadingMessage] = React.useState(LoadingMessages[0]);
+    const { t } = useTranslation();
+    
+    const loadingMessages = React.useMemo(() => [
+        t('loadingMsg1'),
+        t('loadingMsg2'),
+        t('loadingMsg3'),
+        t('loadingMsg4'),
+        t('loadingMsg5'),
+        t('loadingMsg6'),
+    ], [t]);
+
+    const [loadingMessage, setLoadingMessage] = React.useState(loadingMessages[0]);
     
     const textBasedProducts: ProductType[] = ['tshirt', 'sweatshirt', 'hoodie', 'bag', 'phone_case', 'sticker', 'poster', 'wallet', 'cap', 'pillow', 'flat_lay'];
     const imageUrl = generatedImage ? `data:image/png;base64,${generatedImage}` : '';
@@ -33,11 +36,11 @@ const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoadi
     React.useEffect(() => {
         if (isLoading) {
             const interval = setInterval(() => {
-                setLoadingMessage(LoadingMessages[Math.floor(Math.random() * LoadingMessages.length)]);
+                setLoadingMessage(loadingMessages[Math.floor(Math.random() * loadingMessages.length)]);
             }, 2500);
             return () => clearInterval(interval);
         }
-    }, [isLoading]);
+    }, [isLoading, loadingMessages]);
 
   return (
     <div className="w-full lg:w-2/3 xl:w-3/4 flex-grow flex flex-col items-center justify-center gap-6">
@@ -49,13 +52,13 @@ const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoadi
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <p className="text-lg font-semibold">{loadingMessage}</p>
-            <p className="text-sm text-gray-400 mt-1">This may take a moment...</p>
+            <p className="text-sm text-gray-400 mt-1">{t('loadingMoment')}</p>
           </div>
         )}
 
         {error && !isLoading && (
           <div className="text-center text-red-400">
-              <h3 className="text-xl font-semibold">Generation Failed</h3>
+              <h3 className="text-xl font-semibold">{t('generationFailedTitle')}</h3>
               <p className="mt-2 text-sm">{error}</p>
           </div>
         )}
@@ -63,8 +66,8 @@ const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoadi
         {!generatedImage && !isLoading && !error && (
            <div className="text-center text-gray-500">
             <WandIcon className="w-24 h-24 mx-auto text-gray-700" />
-            <h3 className="mt-4 text-xl font-semibold text-gray-400">Your Mockup Appears Here</h3>
-            <p className="mt-1 text-sm">Customize your design and click "Generate"</p>
+            <h3 className="mt-4 text-xl font-semibold text-gray-400">{t('previewPlaceholderTitle')}</h3>
+            <p className="mt-1 text-sm">{t('previewPlaceholderSubtitle')}</p>
           </div>
         )}
 
@@ -102,7 +105,7 @@ const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoadi
                     className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105"
                 >
                     <DownloadIcon className="w-6 h-6" />
-                    <span className="text-lg">Download Mockup</span>
+                    <span className="text-lg">{t('downloadMockupButton')}</span>
                 </button>
             ) : (
                  <button
@@ -111,7 +114,7 @@ const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoadi
                     className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105"
                 >
                     <DownloadIcon className="w-6 h-6" />
-                    <span className="text-lg">Download Engraving SVG</span>
+                    <span className="text-lg">{t('downloadEngravingButton')}</span>
                 </button>
             )}
 
@@ -119,10 +122,10 @@ const PreviewDisplay: React.FC<PreviewDisplayProps> = ({ generatedImage, isLoadi
             {textBasedProducts.includes(productType) && productType !== 'laser_engraving' && (
                 <div className="p-2 rounded-lg bg-black/30">
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-gray-400 mr-2 shrink-0">Assets:</span>
-                        <button onClick={onDownloadLogoPng} title="Download logo as PNG" className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md shadow-lg transition-all text-xs">Logo PNG</button>
-                        <button onClick={onDownloadTextSvg} title="Download text as SVG" className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md shadow-lg transition-all text-xs">Text SVG</button>
-                        <button onClick={onDownloadTextPng} title="Download text as PNG" className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md shadow-lg transition-all text-xs">Text PNG</button>
+                        <span className="text-xs font-semibold text-gray-400 ms-2 me-2 shrink-0">{t('assetsLabel')}</span>
+                        <button onClick={onDownloadLogoPng} title="Download logo as PNG" className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md shadow-lg transition-all text-xs">{t('logoPngButton')}</button>
+                        <button onClick={onDownloadTextSvg} title="Download text as SVG" className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md shadow-lg transition-all text-xs">{t('textSvgButton')}</button>
+                        <button onClick={onDownloadTextPng} title="Download text as PNG" className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md shadow-lg transition-all text-xs">{t('textPngButton')}</button>
                     </div>
                 </div>
             )}

@@ -4,8 +4,19 @@ import React from 'react';
 export type DesignStyle = 'classic' | 'split' | 'sketch' | 'slasher' | 'vintage_stamp' | 'retro_wave' | 'minimalist_line' | 'grunge_overlay' | 'full_wrap' | 'full_front' | 'cyberpunk_glitch' | 'stacked_text' | 'emblem' | 'photo_text' | 'american_traditional_tattoo' | 'watercolor_splash' | 'art_deco' | 'pop_art' | 'cosmic_galaxy' | 'japanese_ukiyo-e' | 'distressed_vintage' | 'typography_focus' | 'abstract_geometric';
 export type ModelPose = 'flat_lay_simple' | 'standing' | 'sitting' | 'sitting_floor_cozy' | 'recumbent' | 'smiling_glasses' | 'back' | 'drinking_tea' | 'jumping' | 'dancing' | 'meditating' | 'heroic' | 'action' | 'yoga' | 'casual_lean' | 'walking_street' | 'laughing' | 'arms_crossed' | 'thinking' | 'hands_in_pockets' | 'closeup_casual' | 'sitting_hand_hip' | 'sitting_on_counter';
 export type ModelAudience = 
-  'woman_20s_athletic' | 'woman_30s_casual' | 'woman_40s_professional' | 'woman_50s_elegant' | 'middle_aged_woman_artist' | 'elderly_woman_gardener' |
-  'man_20s_student' | 'man_30s_creative' | 'man_40s_business' | 'man_50s_distinguished' | 'teenager_male_gamer' | 'young_man_musician';
+  // Female
+  'teenager_female_skater' |
+  'woman_20s_athletic' | 'woman_20s_urban_fashion' | 'woman_20s_barista' |
+  'woman_30s_casual' | 'woman_30s_yogi' | 'woman_30s_plus_size_confident' |
+  'woman_40s_professional' | 'woman_40s_edgy_tattoos' | 'middle_aged_woman_artist' |
+  'woman_50s_elegant' | 'woman_50s_traveler' |
+  'elderly_woman_gardener' | 'elderly_woman_baker' |
+  // Male
+  'teenager_male_gamer' |
+  'man_20s_student' | 'young_man_musician' |
+  'man_30s_creative' |
+  'man_40s_business' |
+  'man_50s_distinguished';
 
 export type TshirtFont = 'impact' | 'bebas_neue' | 'lobster' | 'montserrat' | 'oswald' | 'anton' | 'archivo_black' | 'pacifico' | 'bangers' | 'permanent_marker' | 'roboto' | 'playfair_display' | 'creepster' | 'nosifier' | 'merriweather' | 'lato' | 'poppins' | 'zilla_slab' | 'caveat' | 'dancing_script' | 'rock_salt' | 'special_elite' | 'press_start_2p' | 'monoton';
 

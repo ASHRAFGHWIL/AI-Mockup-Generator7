@@ -466,54 +466,54 @@ const generateBaseImage = async (options: DesignOptions): Promise<string> => {
             } else {
                 const audienceDescription = getAudienceDescription(audience);
                 const poseDescription = getPoseDescription(pose);
-                prompt = `Commercial product mockup photo, waist-up portrait. A hyperrealistic model, ${audienceDescription}, in a ${poseDescription} with a natural expression. The model has extremely detailed, natural skin texture with subtle pores and looks completely authentic. The model is wearing a plain, unbranded, high-quality ${productColor} ${productGarment} with detailed fabric weave and texture visible. The garment is shown clearly for a mockup. The background is a clean, modern, heavily out-of-focus studio setting. ${qualityPrompt}`;
+                prompt = `Commercial product mockup photo, waist-up portrait. A hyperrealistic model, ${audienceDescription}, in a ${poseDescription} with a natural expression. The model has extremely detailed, natural skin texture with subtle pores and looks completely authentic. The model is wearing a plain, unbranded, high-quality ${getColorName(productColor)} ${productGarment} with detailed fabric weave and texture visible. The garment is shown clearly for a mockup. The background is a clean, modern, heavily out-of-focus studio setting. ${qualityPrompt}`;
             }
             break;
         }
         case 'bag':
-             prompt = `Commercial product lifestyle photo. A person's hand and arm with hyperrealistic, natural skin texture, holding a plain, unbranded ${bagMaterial} bag in ${productColor}. The focus is on the bag, highlighting its detailed material texture. The background is a stylish, heavily blurred urban or cafe setting with strong bokeh. ${qualityPrompt}`;
+             prompt = `Commercial product lifestyle photo. A person's hand and arm with hyperrealistic, natural skin texture, holding a plain, unbranded ${bagMaterial} bag in ${getColorName(productColor)}. The focus is on the bag, highlighting its detailed material texture. The background is a stylish, heavily blurred urban or cafe setting with strong bokeh. ${qualityPrompt}`;
             break;
         case 'wallet':
             const walletStyleDescription = getWalletStyleDescription(walletStyle);
             const walletModelDescription = getWalletModelDescription(walletModel);
-            prompt = `Commercial product photo of a plain, unbranded ${walletStyleDescription} in a ${productColor} color, highlighting the detailed leather texture. Scene: ${walletModelDescription}. The background has a beautiful, strong bokeh effect. ${qualityPrompt}`;
+            prompt = `Commercial product photo of a plain, unbranded ${walletStyleDescription} in a ${getColorName(productColor)} color, highlighting the detailed leather texture. Scene: ${walletModelDescription}. The background has a beautiful, strong bokeh effect. ${qualityPrompt}`;
             break;
         case 'wooden_frame':
             const frameStyleDescription = getFrameStyleDescription(frameStyle);
             const frameModelDescription = getFrameModelDescription(frameModel);
-            prompt = `Commercial product photo. A hyperrealistic model, ${frameModelDescription}, with natural skin texture, is holding up a plain, empty ${frameStyleDescription} in a ${productColor} finish. The focus is on the empty frame, showing its detailed wood grain. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
+            prompt = `Commercial product photo. A hyperrealistic model, ${frameModelDescription}, with natural skin texture, is holding up a plain, empty ${frameStyleDescription} in a ${getColorName(productColor)} finish. The focus is on the empty frame, showing its detailed wood grain. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
             break;
         case 'tea_mug':
             // FIX: Changed 'style' to 'mugStyle' to fix reference error.
             const mugStyleDescription = getMugStyleDescription(mugStyle);
             const mugModelDescription = getMugModelDescription(mugModel);
-            prompt = `Commercial product photo. A hyperrealistic model, ${mugModelDescription}, with natural skin texture, is holding a plain, unbranded ${mugStyleDescription} in a ${productColor} color. The focus is on the mug, showing its texture. The background has a beautiful, strong bokeh effect. ${qualityPrompt}`;
+            prompt = `Commercial product photo. A hyperrealistic model, ${mugModelDescription}, with natural skin texture, is holding a plain, unbranded ${mugStyleDescription} in a ${getColorName(productColor)} color. The focus is on the mug, showing its texture. The background has a beautiful, strong bokeh effect. ${qualityPrompt}`;
             break;
         case 'sipper_glass':
             const sipperStyleDescription = getSipperGlassStyleDescription(sipperGlassStyle);
             const sipperModelDescription = getSipperGlassModelDescription(sipperGlassModel);
-            const beverageColor = productColor === '#FFFFFF' ? 'clear' : productColor;
+            const beverageColor = productColor === '#FFFFFF' ? 'clear' : getColorName(productColor);
             prompt = `Commercial product photo. A hyperrealistic model, ${sipperModelDescription}, holding a plain, unbranded ${sipperStyleDescription} containing a ${beverageColor} beverage. The focus is on the sipper glass, showing realistic condensation and reflections. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
             break;
         case 'tumbler_wrap':
             const tumblerStyleDescription = getTumblerStyleDescription(tumblerStyle);
             const tumblerModelDescription = getTumblerModelDescription(tumblerModel);
-            prompt = `Commercial product photo. A hyperrealistic model, ${tumblerModelDescription}, holding a plain, unbranded ${tumblerStyleDescription} in a ${productColor} color. The focus is on the tumbler, highlighting its material finish (matte, steel). The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
+            prompt = `Commercial product photo. A hyperrealistic model, ${tumblerModelDescription}, holding a plain, unbranded ${tumblerStyleDescription} in a ${getColorName(productColor)} color. The focus is on the tumbler, highlighting its material finish (matte, steel). The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
             break;
         case 'halloween_tumbler':
             const halloweenTumblerStyleDescription = getHalloweenTumblerStyleDescription(halloweenTumblerStyle);
             const halloweenTumblerSettingDescription = getHalloweenTumblerSettingDescription(halloweenTumblerSetting);
-            prompt = `Commercial product photo. A plain, unbranded ${halloweenTumblerStyleDescription} in a ${productColor} color is placed in the center of ${halloweenTumblerSettingDescription}. The focus is on the tumbler, highlighting its material and the atmospheric lighting. The background has a beautiful, strong bokeh effect. ${qualityPrompt}`;
+            prompt = `Commercial product photo. A plain, unbranded ${halloweenTumblerStyleDescription} in a ${getColorName(productColor)} color is placed in the center of ${halloweenTumblerSettingDescription}. The focus is on the tumbler, highlighting its material and the atmospheric lighting. The background has a beautiful, strong bokeh effect. ${qualityPrompt}`;
             break;
         case 'tumbler_trio':
             const tumblerTrioStyleDescription = getTumblerTrioStyleDescription(tumblerTrioStyle);
             const tumblerTrioSettingDescription = getTumblerTrioSettingDescription(tumblerTrioSetting);
-            prompt = `Commercial product photo. ${tumblerTrioStyleDescription} are standing in a neat row, side-by-side, on ${tumblerTrioSettingDescription}. They are all plain, unbranded, and have a ${productColor} base color. The focus is on the three tumblers, highlighting their material and reflections. The background has a beautiful bokeh effect. ${qualityPrompt}`;
+            prompt = `Commercial product photo. ${tumblerTrioStyleDescription} are standing in a neat row, side-by-side, on ${tumblerTrioSettingDescription}. They are all plain, unbranded, and have a ${getColorName(productColor)} base color. The focus is on the three tumblers, highlighting their material and reflections. The background has a beautiful bokeh effect. ${qualityPrompt}`;
             break;
         case 'phone_case':
             const phoneCaseStyleDescription = getPhoneCaseStyleDescription(phoneCaseStyle);
             const phoneCaseModelDescription = getPhoneCaseModelDescription(phoneCaseModel);
-            prompt = `Commercial product photo. A plain, unbranded phone case with a ${phoneCaseStyleDescription} in a ${productColor} color is shown. Scene: ${phoneCaseModelDescription}. The focus is on the phone case, highlighting its material and realistic reflections. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
+            prompt = `Commercial product photo. A plain, unbranded phone case with a ${phoneCaseStyleDescription} in a ${getColorName(productColor)} color is shown. Scene: ${phoneCaseModelDescription}. The focus is on the phone case, highlighting its material and realistic reflections. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
             break;
         case 'sticker':
             const stickerStyleDescription = getStickerStyleDescription(stickerStyle);
@@ -528,16 +528,16 @@ const generateBaseImage = async (options: DesignOptions): Promise<string> => {
         case 'cap':
             const capStyleDescription = getCapStyleDescription(capStyle);
             const capModelDescription = getCapModelDescription(capModel);
-            prompt = `Commercial product photo. Scene: ${capModelDescription}, featuring a plain, unbranded ${capStyleDescription} in a ${productColor} color. The focus is on the cap, showing detailed fabric texture. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
+            prompt = `Commercial product photo. Scene: ${capModelDescription}, featuring a plain, unbranded ${capStyleDescription} in a ${getColorName(productColor)} color. The focus is on the cap, showing detailed fabric texture. The background is beautifully blurred with strong bokeh. ${qualityPrompt}`;
             break;
         case 'pillow':
             const pillowStyleDescription = getPillowStyleDescription(pillowStyle);
             const pillowSettingDescription = getPillowSettingDescription(pillowSetting);
-            prompt = `Commercial product photo. A plain, unbranded ${pillowStyleDescription} in a ${productColor} color is placed in the center of the scene: ${pillowSettingDescription}. The focus is on the pillow, highlighting its detailed fabric texture and softness. The background has a beautiful bokeh effect. ${qualityPrompt}`;
+            prompt = `Commercial product photo. A plain, unbranded ${pillowStyleDescription} in a ${getColorName(productColor)} color is placed in the center of the scene: ${pillowSettingDescription}. The focus is on the pillow, highlighting its detailed fabric texture and softness. The background has a beautiful bokeh effect. ${qualityPrompt}`;
             break;
         case 'flat_lay':
             const flatLayStyleDescription = getFlatLayStyleDescription(flatLayStyle);
-            prompt = `Top-down commercial product photo. A perfectly arranged flat lay composition featuring a plain, unbranded, high-quality ${productColor} t-shirt with visible fabric texture. Scene: ${flatLayStyleDescription}. The lighting is soft and even, creating gentle, realistic shadows. ${qualityPrompt}`;
+            prompt = `Top-down commercial product photo. A perfectly arranged flat lay composition featuring a plain, unbranded, high-quality ${getColorName(productColor)} t-shirt with visible fabric texture. Scene: ${flatLayStyleDescription}. The lighting is soft and even, creating gentle, realistic shadows. ${qualityPrompt}`;
             break;
         case 'jigsaw_puzzle':
             const puzzleStyleDescription = getPuzzleStyleDescription(puzzleStyle);

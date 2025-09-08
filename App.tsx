@@ -7,13 +7,14 @@ import { generateMockup as generateMockupFromApi } from './services/geminiServic
 import { generateDesignPng, generateEngravingSvg, generateTextOnlySvg, generateTextOnlyPng } from './services/svgService';
 import { LanguageContext, useTranslation, Language } from './hooks/useTranslation';
 import { en } from './i18n/en';
+// FIX: Statically import the 'ar' translations to resolve the "Cannot find name 'require'" error, which is not available in a browser environment.
+import { ar } from './i18n/ar';
 
 const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
 
   const t = useCallback((key: keyof typeof en) => {
     if (language === 'ar') {
-      const { ar } = require('./i18n/ar');
       return ar[key] || key;
     }
     return en[key] || key;

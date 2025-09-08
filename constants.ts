@@ -325,20 +325,29 @@ export const MODEL_POSES: {id: ModelPose, nameKey: string}[] = [
 ];
 
 export const MODEL_AUDIENCES: {id: ModelAudience, nameKey: string, description: string}[] = [
-    // Female
-    { id: 'woman_20s_athletic', nameKey: 'modelAudience_woman_20s_athletic', description: 'a woman with an athletic build' },
-    { id: 'woman_30s_casual', nameKey: 'modelAudience_woman_30s_casual', description: 'a woman with a casual style' },
-    { id: 'woman_40s_professional', nameKey: 'modelAudience_woman_40s_professional', description: 'a woman with a professional appearance' },
-    { id: 'woman_50s_elegant', nameKey: 'modelAudience_woman_50s_elegant', description: 'an elegant woman' },
+    // Female Models
+    { id: 'teenager_female_skater', nameKey: 'modelAudience_teenager_female_skater', description: 'a female teenager with a cool skater style' },
+    { id: 'woman_20s_barista', nameKey: 'modelAudience_woman_20s_barista', description: 'a young woman with a friendly barista style, perhaps with an apron' },
+    { id: 'woman_20s_urban_fashion', nameKey: 'modelAudience_woman_20s_urban_fashion', description: 'a young woman in trendy, stylish urban fashion' },
+    { id: 'woman_20s_athletic', nameKey: 'modelAudience_woman_20s_athletic', description: 'a woman with an athletic build, in sporty-casual clothing' },
+    { id: 'woman_30s_casual', nameKey: 'modelAudience_woman_30s_casual', description: 'a woman with a relaxed and casual style' },
+    { id: 'woman_30s_yogi', nameKey: 'modelAudience_woman_30s_yogi', description: 'a woman in comfortable activewear, with a calm and serene yogi vibe' },
+    { id: 'woman_30s_plus_size_confident', nameKey: 'modelAudience_woman_30s_plus_size_confident', description: 'a confident and happy plus-size woman with a stylish, modern look' },
+    { id: 'woman_40s_professional', nameKey: 'modelAudience_woman_40s_professional', description: 'a woman with a sharp, professional appearance' },
     { id: 'middle_aged_woman_artist', nameKey: 'modelAudience_middle_aged_woman_artist', description: 'a middle-aged woman with an artistic and creative style' },
+    { id: 'woman_40s_edgy_tattoos', nameKey: 'modelAudience_woman_40s_edgy_tattoos', description: 'a stylish middle-aged woman with visible artistic tattoos on her arms' },
+    { id: 'woman_50s_elegant', nameKey: 'modelAudience_woman_50s_elegant', description: 'an elegant and sophisticated woman' },
+    { id: 'woman_50s_traveler', nameKey: 'modelAudience_woman_50s_traveler', description: 'an energetic, mature woman dressed for travel, perhaps with a camera' },
     { id: 'elderly_woman_gardener', nameKey: 'modelAudience_elderly_woman_gardener', description: 'an elderly woman with a warm smile, dressed for gardening' },
-    // Male
+    { id: 'elderly_woman_baker', nameKey: 'modelAudience_elderly_woman_baker', description: 'a kind, grandmotherly woman in an apron, looking like she just finished baking' },
+    
+    // Male Models
+    { id: 'teenager_male_gamer', nameKey: 'modelAudience_teenager_male_gamer', description: 'a male teenager with a gamer style, perhaps wearing headphones around his neck' },
     { id: 'man_20s_student', nameKey: 'modelAudience_man_20s_student', description: 'a young man with a student style' },
+    { id: 'young_man_musician', nameKey: 'modelAudience_young_man_musician', description: 'a young man with a creative, musician-like appearance' },
     { id: 'man_30s_creative', nameKey: 'modelAudience_man_30s_creative', description: 'a creative professional man' },
     { id: 'man_40s_business', nameKey: 'modelAudience_man_40s_business', description: 'a man in business-casual style' },
     { id: 'man_50s_distinguished', nameKey: 'modelAudience_man_50s_distinguished', description: 'a distinguished-looking man' },
-    { id: 'teenager_male_gamer', nameKey: 'modelAudience_teenager_male_gamer', description: 'a male teenager with a gamer style, perhaps wearing headphones around his neck' },
-    { id: 'young_man_musician', nameKey: 'modelAudience_young_man_musician', description: 'a young man with a creative, musician-like appearance' },
 ];
 
 export const TSHIRT_FONTS: {id: TshirtFont, name: string}[] = [
